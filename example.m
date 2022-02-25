@@ -25,7 +25,9 @@ Y(7,:) = cos(2*x) + 0.1*randn(1,n);
 Y(8,:) = cos(2*x) + 0.5*randn(1,n);
 
 figure('Position',[500 500 1200 600]);
-colors = rand(n_example, 3);
+colors = {'#e41a1c','#377eb8','#4daf4a','#984ea3',...
+          '#ff7f00','#eee826','#a65628','#f781bf'};
+
 for i=1:n_example
     y = Y(i,:);
     
@@ -42,7 +44,7 @@ for i=1:n_example
     
     % Visualization
     subplot(2,4,i);
-    scatter(x,y,'filled','MarkerFaceColor',colors(i,:));
+    scatter(x,y,'filled','MarkerFaceColor',colors{i});
     xlim([-3.2 3.2]);
     ylim([min(y)-0.6 max(y)+0.6]);
 
@@ -53,6 +55,6 @@ for i=1:n_example
     box on;
     h = gca;
     h.LineWidth=2;    
-    title(['r:' num2str(r) '   \xi_{n}:' num2str(xi)]);
+    title(['r:' num2str(r) '   \xi_{n}:' num2str(xi)],'FontSize',12);
     set(gca,'fontname','Lato');
 end
