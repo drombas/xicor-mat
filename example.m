@@ -46,7 +46,7 @@ for i=1:n_example
     subplot(2,4,i);
     scatter(x,y,'filled','MarkerFaceColor',colors{i});
     xlim([-3.2 3.2]);
-    ylim([min(y)-0.6 max(y)+0.6]);
+    ylim([min(y)-0.8 max(y)+0.8]);
 
     xticklabels([]);
     yticklabels([]);
@@ -55,6 +55,6 @@ for i=1:n_example
     box on;
     h = gca;
     h.LineWidth=2;    
-    title(['r:' num2str(r) '   \xi_{n}:' num2str(xi)],'FontSize',12);
+    title(['r:' num2str(r) '   \xi:' num2str(xi)],'FontSize',12);
     set(gca,'fontname','Lato');
 end
