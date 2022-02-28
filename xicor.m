@@ -10,13 +10,19 @@ function [xi,p] = xicor(x,y,varargin)
 %   'x'              Independent variable. Numeric 1D array.
 %            
 %   'y'              Dependent variable. Numeric 1D array.
+%
+%
+%   Name-value arguments:
 %  
 %   'method'         Method to be used to compute the correlation. Options
 %                    Options are
+%
+%   'symmetric'      If true xi is computed as (r(x,y)+r(y,x))/2. Default is 
+%                    false.
 %  
 %   Output arguments:
 %  
-%   'xi'             Computed xi-correlation. In range [0,1]
+%   'xi'             Computed xi-correlation.
 %
 %   'p'              Estimated p-value.
 %
@@ -24,7 +30,7 @@ function [xi,p] = xicor(x,y,varargin)
 %   
 %   Notes
 %   -----
-%   The xi-correlation is not simmetric. 
+%   The xi-correlation is not symmetric. 
 %
 %
 %   References
@@ -72,30 +78,26 @@ end
 [~, si] = sort(x, 'ascend');
 y = y(si);
 
-% Check if there are ties in Y
+% Compute y ranks
+[~, si] = sort(y, 'ascend');
+r = 1:n;
+r(si) = r;
+
+% If no Y ties compute it directly
 if length(unique(y)) == n
-    % Compute y rank
-    [~, si] = sort(y, 'ascend');
-    r = 1:n;
-    r(si) = r;
-    
-    % Compute correlation
     xi = 1 - 3*sum(abs(diff(r)))/(n^2 - 1);
 else
-    % Get y rank
-    y = sort(y, 'ascend');
-    r = 1:n;
+    % Get r (yj<=yi) and l (yj>=yi)
+    l = n - r + 1;
     
-    % Check for ties
     y_unique = unique(y);
     idx_tie = find(groupcounts(y)>1);
         
     for i=1:length(idx_tie)
         tie_mask = (y == y_unique(idx_tie));                
-        r(tie_mask) = max(r(tie_mask))*ones(1,sum(tie_mask));        
-    end
-    
-    l = n - r + 1;
+        r(tie_mask) = max(r(tie_mask))*ones(1,sum(tie_mask));    
+        l(tie_mask) = max(l(tie_mask))*ones(1,sum(tie_mask));
+    end    
     
     % Compute correlation
     xi = 1 - n*sum(abs(diff(r)))/(2*sum(l * (n - l)));
