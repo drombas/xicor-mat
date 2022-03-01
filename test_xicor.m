@@ -1,21 +1,13 @@
-close all;clc;clearvars;
-
-% x =  linspace(-10,10,200);
-% y = x.^2 + randn(1,200);
-
-n_iter = 1000;
-N = 40;
-
-x = randn(n_iter,N);
-y = randn(n_iter,N);
-for n=1:n_iter
-xi(n) = xicor(x(n,:),y(n,:));
-end
-
-e = sqrt(n)*xi;
-x = max(abs(e))*[-1:.01:1];
-y = normpdf(x,0,sqrt(2/5));
-
-histogram(e,'Normalization','pdf');
-hold on
-plot(x,y,'r');
+%% Basic test: uncorrelated
+x = rand(1,100);
+y = rand(1,100);
+xi = xicor(x,y);
+assert(abs(xi) < 0.1);
+%% Basic test: totally dependent
+x = randn(1,100);
+y = x.^2;
+xi = xicor(x,y);
+assert(xi > 0.9);
+%% Break test:
+% testCase = matlab.unittest.TestCase.forInteractiveUse;
+% verifyError(testCase,@() xicor('0'),"add5:InputMustBeNumeric")
