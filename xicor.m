@@ -100,13 +100,13 @@ end
 
 if n < 10
     warning(['Running xicor with only ', num2str(n),...
-        ' points. This might result in unstable results']);
+        ' points. This might produce unstable results.']);
 end
 
 xi = compute_xi(x, y);
 
 if symmetric
-    xi = (xi + compute_xi(y,x)/2);
+    xi = (xi + compute_xi(y,x))/2;
 end
 
 % If only one output return xi
