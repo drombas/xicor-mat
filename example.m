@@ -13,7 +13,7 @@ x = linspace(-3,3,n);
 % Linear relationship
 Y(1,:) = x + 0.2*randn(1,n);
 Y(2,:) = x + randn(1,n);
-Y(3,:) = x + 5*randn(1,n);
+Y(3,:) = x + 4*randn(1,n);
 Y(4,:) = -x + 0.2*randn(1,n);
 
 % Quadratic relationship
@@ -24,7 +24,7 @@ Y(6,:) = x.^2 + 2*randn(1,n);
 Y(7,:) = cos(2*x) + 0.1*randn(1,n);
 Y(8,:) = cos(2*x) + 0.5*randn(1,n);
 
-figure('Position',[500 500 1200 600]);
+figure('Position',[0 0 1200 600]);
 colors = {'#e41a1c','#377eb8','#4daf4a','#984ea3',...
           '#ff7f00','#eee826','#a65628','#f781bf'};
 
