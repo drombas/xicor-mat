@@ -74,7 +74,9 @@ if ~isnumeric(x) || ~isnumeric(y)
     error('err2:TypeError','x and y are must be numeric');
 end
 
-if length(x) ~= length(y)
+n = length(x);
+
+if n ~= length(y)
     error('err3:IncorrectLength','x and y must have the same length');
 end
 
@@ -85,10 +87,20 @@ end
 % Check for NaN values
 is_nan = isnan(x) | isnan(y);
 
-if sum(is_nan) > 0
-    warning('NaN values encountered');           
+if sum(is_nan) == n
+    warning('No points remaining after excluding NaN.');
+    xi = nan;
+    return
+elseif sum(is_nan) > 0
+    warning('NaN values encountered.');           
     x = x(~is_nan);
     y = y(~is_nan);
+    n = length(x);
+end
+
+if n < 10
+    warning(['Running xicor with only ', num2str(n),...
+        ' points. This might result in unstable results']);
 end
 
 xi = compute_xi(x, y);
@@ -135,5 +147,5 @@ else
     end    
     
     % Compute correlation
-    xi = 1 - n*sum(abs(diff(r)))/(2*sum(l * (n - l)));
+    xi = 1 - n*sum(abs(diff(r)))/(2*sum((n - l) .* l));
 end
