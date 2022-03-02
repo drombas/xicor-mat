@@ -55,14 +55,31 @@ function [xi,p] = xicor(x,y,varargin)
 %   David Romero-Bascones, dromero@mondragon.edu
 %   Biomedical Engineering Department, Mondragon Unibertsitatea, 2022
 
-if nargin == 2
-    symmetric = false; 
+% Initial checks
+if nargin == 1
+    error('err1:MoreInputsRequired','xicor requires at least two inputs');
 end
 
-n = length(x);
+p = inputParser;
+addRequired(p,'x');
+addRequired(p,'y');
+addOptional(p,'symmetric',false)
 
-if n ~= length(y)
-    error('x and y have different number of samples');
+parse(p,x,y,varargin{:})
+x = p.Results.x;
+y = p.Results.y;
+symmetric = p.Results.symmetric;
+
+if ~isnumeric(x) || ~isnumeric(y)
+    error('err2:TypeError','x and y are must be numeric');
+end
+
+if length(x) ~= length(y)
+    error('err3:IncorrectLength','x and y must have the same length');
+end
+
+if ~islogical(symmetric)
+    error('err2:TypeError','symmetric must be true or false');
 end
 
 % Check for NaN values
@@ -73,6 +90,24 @@ if sum(is_nan) > 0
     x = x(~is_nan);
     y = y(~is_nan);
 end
+
+xi = compute_xi(x, y);
+
+if symmetric
+    xi = (xi + compute_xi(y,x)/2);
+end
+
+% If only one output return xi
+if nargout <= 1
+    return
+end
+
+% Compute p-values (only valid for large n)
+p = 1 - normcdf(sqrt(n)*xi,0,sqrt(2/5));        
+
+function xi = compute_xi(x,y)
+
+n = length(x);
 
 % Reorder based on x
 [~, si] = sort(x, 'ascend');
@@ -101,14 +136,4 @@ else
     
     % Compute correlation
     xi = 1 - n*sum(abs(diff(r)))/(2*sum(l * (n - l)));
-end
-
-% If only one output return xi
-if nargout == 1
-    return
-end
-
-if nargout == 2
-    % Compute p-values (only valid for large n)
-    p = 1 - normcdf(sqrt(n)*xi,0,sqrt(2/5));        
 end
