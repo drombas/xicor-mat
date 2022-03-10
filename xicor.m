@@ -136,20 +136,11 @@ switch p_value_method
             a = 1/n^4*sum((2*n -2*i +1) .* u.^2);
             b = 1/n^5*sum((v + (n - i) .* u).^2);
             c = 1/n^3*sum((2*n -2*i +1) .* u);
-            d = 1/n^3*sum(l .* (n - L));
+            d = 1/n^3*sum(l .* (n - l));
             
-            t = (a - 2*b + c^2)/d^2;
+            tau = sqrt((a - 2*b + c^2)/d^2);
             
-            p = 1 - normcdf(sqrt(n)*xi,0,sqrt(t));
-%            qr = sort(r);            
-%            ind = 1:n;
-%            ind2 = 2*n - 2*ind + 1;
-%            a = mean(ind2*qfr*qfr)/n;
-%            c = mean(ind2*qfr)/n;
-%            cq = cumsum(qfr);
-%            m = (cq + (n - ind)*qfr)/n;
-%            b = mean(m^2);
-%            v = (ai - 2*b + ci^2)/(CU^2);
+            p = 1 - normcdf(sqrt(n)*xi,0,tau);
         end
     case 'permutation'
         xi_perm = nan(1,n_perm);
@@ -160,7 +151,7 @@ switch p_value_method
             end
         else
             for i_perm=1:n_perm
-                x_perm = x(rand_perm(n));
+                x_perm = x(randperm(n));
                 xi_perm(i_perm) = (compute_xi(x_perm,y) + ...
                                    compute_xi(y,x_perm))/2;
             end            
