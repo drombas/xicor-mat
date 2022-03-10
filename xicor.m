@@ -60,15 +60,20 @@ if nargin == 1
     error('err1:MoreInputsRequired','xicor requires at least two inputs');
 end
 
-p = inputParser;
-addRequired(p,'x');
-addRequired(p,'y');
-addOptional(p,'symmetric',false)
+parser = inputParser;
+addRequired(parser,'x');
+addRequired(parser,'y');
+addOptional(parser,'symmetric',false)
+addOptional(parser,'p_value_method','theoretical')
+addOptional(parser,'n_perm',100)
 
-parse(p,x,y,varargin{:})
-x = p.Results.x;
-y = p.Results.y;
-symmetric = p.Results.symmetric;
+parse(parser,x,y,varargin{:})
+
+x = parser.Results.x;
+y = parser.Results.y;
+symmetric = parser.Results.symmetric;
+p_value_method = parser.Results.p_value_method;
+n_perm = parser.Results.n_perm;
 
 if ~isnumeric(x) || ~isnumeric(y)
     error('err2:TypeError','x and y are must be numeric');
@@ -103,7 +108,7 @@ if n < 10
         ' points. This might produce unstable results.']);
 end
 
-xi = compute_xi(x, y);
+[xi, r, l] = compute_xi(x, y);
 
 if symmetric
     xi = (xi + compute_xi(y,x))/2;
@@ -114,10 +119,59 @@ if nargout <= 1
     return
 end
 
-% Compute p-values (only valid for large n)
-p = 1 - normcdf(sqrt(n)*xi,0,sqrt(2/5));        
+if strcmp(p_value_method, 'numeric') && symmetric==true
+    p_value_method = 'permutation';
+end
 
-function xi = compute_xi(x,y)
+% Compute p-values (only valid for large n)
+switch p_value_method
+    case 'theoretical'
+        if length(unique(y)) == n
+            p = 1 - normcdf(sqrt(n)*xi,0,sqrt(2/5));                
+        else
+            u = sort(r);
+            v = cumsum(u);
+            i = 1:n;
+            
+            a = 1/n^4*sum((2*n -2*i +1) .* u.^2);
+            b = 1/n^5*sum((v + (n - i) .* u).^2);
+            c = 1/n^3*sum((2*n -2*i +1) .* u);
+            d = 1/n^3*sum(l .* (n - L));
+            
+            t = (a - 2*b + c^2)/d^2;
+            
+            p = 1 - normcdf(sqrt(n)*xi,0,sqrt(t));
+%            qr = sort(r);            
+%            ind = 1:n;
+%            ind2 = 2*n - 2*ind + 1;
+%            a = mean(ind2*qfr*qfr)/n;
+%            c = mean(ind2*qfr)/n;
+%            cq = cumsum(qfr);
+%            m = (cq + (n - ind)*qfr)/n;
+%            b = mean(m^2);
+%            v = (ai - 2*b + ci^2)/(CU^2);
+        end
+    case 'permutation'
+        xi_perm = nan(1,n_perm);
+        
+        if symmetric
+            for i_perm=1:n_perm
+                xi_perm(i_perm) = compute_xi(x(rand_perm(n)),y);
+            end
+        else
+            for i_perm=1:n_perm
+                x_perm = x(rand_perm(n));
+                xi_perm(i_perm) = (compute_xi(x_perm,y) + ...
+                                   compute_xi(y,x_perm))/2;
+            end            
+        end
+        
+        p = sum(xi_perm > xi)/n_perm;
+    otherwise
+        error("Wrong p_value_method. Use 'numeric' or 'permutation'");        
+end
+
+function [xi, r, l] = compute_xi(x,y)
 
 n = length(x);
 
@@ -133,6 +187,8 @@ r(si) = r;
 % If no Y ties compute it directly
 if length(unique(y)) == n
     xi = 1 - 3*sum(abs(diff(r)))/(n^2 - 1);
+    r = nan;
+    l = nan;
 else
     % Get r (yj<=yi) and l (yj>=yi)
     l = n - r + 1;
