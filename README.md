@@ -1,4 +1,6 @@
 # Chaterjee's xi correlation for MATLAB
+[![View Chaterjee's xi correlation on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/112530-chaterjee-s-xi-correlation)
+
 An implementation of Chaterjee's xi correlation in MATLAB
 
 ````
