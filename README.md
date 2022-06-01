@@ -1,6 +1,13 @@
 # Chaterjee's xi correlation for MATLAB
 An implementation of Chaterjee's xi correlation in MATLAB
 
+````
+x = linspace(0, 20, 1000);
+y = cos(x) + 0.3*randn(1, 1000);
+
+xi = xicor(x, y);
+````
+
 The difference between Pearson's and xi-correlation: 
 ![Image description](fig_example.jpg)
 
